@@ -108,7 +108,7 @@ class Dataset_ETT_hour(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-
+        n_missing = 0   
         if self.set_type == 2:
             n_missing = (self.label_len + self.pred_len) - len(seq_y)
         if n_missing > 0:
