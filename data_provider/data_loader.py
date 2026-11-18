@@ -124,8 +124,8 @@ class Dataset_ETT_hour(Dataset):
 
     def __len__(self):
 
-            if self.set_type == 2:  # adding new condition for test set # keep sliding
-                return len(self.data_x) - self.seq_len
+        if self.set_type == 2:  # adding new condition for test set # keep sliding
+            return len(self.data_x) - self.seq_len
                 
         return len(self.data_x) - self.seq_len - self.pred_len + 1
 
