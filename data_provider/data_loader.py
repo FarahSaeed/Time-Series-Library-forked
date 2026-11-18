@@ -109,9 +109,24 @@ class Dataset_ETT_hour(Dataset):
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
 
+        if self.set_type == 2:
+            n_missing = (self.label_len + self.pred_len) - len(seq_y)
+        if n_missing > 0:
+            # pad targets with NaN
+            pad = np.full((n_missing, seq_y.shape[1]), np.nan)
+            seq_y = np.concatenate([seq_y, pad], axis=0)
+            # pad time features by repeating the last row
+            seq_y_mark = np.concatenate(
+                [seq_y_mark, np.repeat(seq_y_mark[-1:], n_missing, axis=0)], axis=0)
+
+
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
     def __len__(self):
+
+            if self.set_type == 2:  # adding new condition for test set # keep sliding
+                return len(self.data_x) - self.seq_len
+                
         return len(self.data_x) - self.seq_len - self.pred_len + 1
 
     def inverse_transform(self, data):
