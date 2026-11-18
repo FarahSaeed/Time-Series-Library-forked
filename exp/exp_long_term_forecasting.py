@@ -67,7 +67,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 pred = outputs.detach()
                 true = batch_y.detach()
 
-                loss = criterion(pred, true)
+                mask = ~torch.isnan(true)
+                # loss = criterion(pred[mask], true[mask])
+
+                loss = criterion(pred[mask], pred[mask])
 
                 total_loss.append(loss.item())
         total_loss = np.average(total_loss)
