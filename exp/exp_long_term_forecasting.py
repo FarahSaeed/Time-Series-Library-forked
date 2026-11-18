@@ -299,7 +299,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
     
     HORIZONS = [96, 192, 336, 720]
     
-    def horizon_metrics(self.preds, trues, horizons=HORIZONS):
+    def horizon_metrics(self, preds, trues, horizons=HORIZONS):
         assert preds.shape[1] >= max(horizons), \
             f"pred_len {preds.shape[1]} < max horizon {max(horizons)}"
     
