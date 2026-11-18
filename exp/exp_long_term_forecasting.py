@@ -279,9 +279,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             dtw = 'Not calculated'        
         
         # mae, mse, rmse, mape, mspe = metric(preds, trues)
-        mae, mse, rmse, mape, mspe = masked_metric(preds, trues)
+        mae, mse, rmse, mape, mspe, smape = masked_metric(preds, trues)
 
-        print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        print('on all horizon steps. mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        self.horizon_metrics(preds, trues)      
+   
         f = open("result_long_term_forecast.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
@@ -294,3 +296,24 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         np.save(folder_path + 'true.npy', trues)
 
         return
+    
+    HORIZONS = [96, 192, 336, 720]
+    
+    def horizon_metrics(self.preds, trues, horizons=HORIZONS):
+        assert preds.shape[1] >= max(horizons), \
+            f"pred_len {preds.shape[1]} < max horizon {max(horizons)}"
+    
+        results = {}
+        for h in horizons:
+            p = preds[:, h-1:h, :]
+            t = trues[:, h-1:h, :]
+            results[h] = masked_metric(p, t)   # (mae, mse, rmse, mape, mspe, smape)
+    
+        for h, (mae, mse, rmse, mape, mspe, smape) in results.items():
+            print(f'horizon {h}: mse:{mse:.4f}, mae:{mae:.4f}')
+    
+        avg = np.mean(np.array(list(results.values())), axis=0)
+        mae, mse, rmse, mape, mspe, smape = avg
+        print(f'average over {horizons}: mse:{mse:.4f}, mae:{mae:.4f}')
+        return results, (mae, mse, rmse, mape, mspe, smape)
+
