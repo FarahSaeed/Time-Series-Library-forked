@@ -177,6 +177,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         preds = []
         trues = []
+        preds_i = []
+        trues_i = []
+        
         folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -212,14 +215,25 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     outputs = test_data.inverse_transform(outputs.reshape(shape[0] * shape[1], -1)).reshape(shape)
                     batch_y = test_data.inverse_transform(batch_y.reshape(shape[0] * shape[1], -1)).reshape(shape)
 
+                
+                outputs_i = test_data.inverse_transform(outputs.reshape(shape[0] * shape[1], -1)).reshape(shape)
+                batch_y_i = test_data.inverse_transform(batch_y.reshape(shape[0] * shape[1], -1)).reshape(shape)
+
                 outputs = outputs[:, :, f_dim:]
                 batch_y = batch_y[:, :, f_dim:]
+                outputs_i = outputs_i[:, :, f_dim:]
+                batch_y_i = batch_y_i[:, :, f_dim:]
 
                 pred = outputs
                 true = batch_y
+                pred_i = outputs_i
+                true_i = batch_y_i
 
                 preds.append(pred)
                 trues.append(true)
+                preds_i.append(pred_i)
+                trues_i.append(true_i)
+                
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
@@ -237,10 +251,18 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
+        
+        preds_i = np.concatenate(preds_i, axis=0)
+        trues_i = np.concatenate(trues_i, axis=0)
         print('test shape:', preds.shape, trues.shape)
+        print('test inversed shape:', preds_i.shape, trues_i.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        preds_i = preds_i.reshape(-1, preds_i.shape[-2], preds_i.shape[-1])
+        trues_i = trues_i.reshape(-1, trues_i.shape[-2], trues_i.shape[-1])
+        
         print('test shape:', preds.shape, trues.shape)
+        print('test inversed shape:', preds_i.shape, trues_i.shape)
 
         # result save
         folder_path = './results/' + setting + '/'
@@ -279,10 +301,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             dtw = 'Not calculated'        
         
         # mae, mse, rmse, mape, mspe = metric(preds, trues)
-        mae, mse, rmse, mape, mspe, smape = masked_metric(preds, trues)
+        mae, mse, rmse, mape, mspe, smape = masked_metric(preds, trues, preds_i, trues_i)
 
         print('on all horizon steps. mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        self.horizon_metrics(preds, trues)      
+        self.horizon_metrics(preds, true, preds_i, trues_i)      
    
         f = open("result_long_term_forecast.txt", 'a')
         f.write(setting + "  \n")
@@ -299,7 +321,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
     
     HORIZONS = [96, 192, 336, 720]
     
-    def horizon_metrics(self, preds, trues, horizons=HORIZONS):
+    def horizon_metrics(self, preds, trues, preds_i, trues_i, horizons=HORIZONS):
         assert preds.shape[1] >= max(horizons), \
             f"pred_len {preds.shape[1]} < max horizon {max(horizons)}"
     
@@ -307,7 +329,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         for h in horizons:
             p = preds[:, h-1:h, :]
             t = trues[:, h-1:h, :]
-            results[h] = masked_metric(p, t)   # (mae, mse, rmse, mape, mspe, smape)
+            p_i = preds_i[:, h-1:h, :]
+            t_i = trues_i[:, h-1:h, :]
+            results[h] = masked_metric(p, t, p_i, t_i)   # (mae, mse, rmse, mape, mspe, smape)
     
         for h, (mae, mse, rmse, mape, mspe, smape) in results.items():
             print(f'horizon {h}: mse:{mse:.4f}, mae:{mae:.4f}, smape:{smape:.4f}')
