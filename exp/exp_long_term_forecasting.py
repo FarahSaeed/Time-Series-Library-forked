@@ -306,7 +306,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         mae, mse, rmse, mape, mspe, smape = masked_metric(preds, trues, preds_i, trues_i)
 
         print('on all horizon steps. mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        self.horizon_metrics(preds, true, preds_i, trues_i)      
+        self.horizon_metrics(preds, trues, preds_i, trues_i)      
    
         f = open("result_long_term_forecast.txt", 'a')
         f.write(setting + "  \n")
