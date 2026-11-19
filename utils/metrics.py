@@ -41,14 +41,15 @@ def metric(pred, true):
     mspe = MSPE(pred, true)
     return mae, mse, rmse, mape, mspe
 
-def masked_metric(pred, true):
+def masked_metric(pred, true, pred_i, true_i):
     mask = ~np.isnan(true)
     p, t = pred[mask], true[mask]
+    p_i, t_i = pred_i[mask], true_i[mask]
     mae = MAE(p, t)
     mse = MSE(p, t)
     rmse = RMSE(p, t)
     mape = MAPE(p, t)
     mspe = MSPE(p, t)
-    smape = SMAPE(p, t)
+    smape = SMAPE(p_i, t_i)
     return mae, mse, rmse, mape, mspe, smape   
 
