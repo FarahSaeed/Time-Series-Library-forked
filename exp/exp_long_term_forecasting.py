@@ -310,10 +310,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             results[h] = masked_metric(p, t)   # (mae, mse, rmse, mape, mspe, smape)
     
         for h, (mae, mse, rmse, mape, mspe, smape) in results.items():
-            print(f'horizon {h}: mse:{mse:.4f}, mae:{mae:.4f}')
+            print(f'horizon {h}: mse:{mse:.4f}, mae:{mae:.4f}, smape:{smape:.4f}')
     
         avg = np.mean(np.array(list(results.values())), axis=0)
         mae, mse, rmse, mape, mspe, smape = avg
-        print(f'average over {horizons}: mse:{mse:.4f}, mae:{mae:.4f}')
+        print(f'average over {horizons}: mse:{mse:.4f}, mae:{mae:.4f}, smape:{smape:.4f}')
         return results, (mae, mse, rmse, mape, mspe, smape)
 
