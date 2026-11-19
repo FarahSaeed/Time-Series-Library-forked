@@ -208,6 +208,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
+                shape = batch_y.shape
+
                 if test_data.scale and self.args.inverse:
                     shape = batch_y.shape
                     if outputs.shape[-1] != batch_y.shape[-1]:
