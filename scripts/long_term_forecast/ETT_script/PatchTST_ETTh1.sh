@@ -172,7 +172,7 @@ python -u run.py \
   --model_id ETTh1_96_720 \
   --model $model_name \
   --data ETTh1 \
-  --features S \
+  --features MS \
   --seq_len $seq_len \
   --label_len 48 \
   --pred_len 720 \
